@@ -1,8 +1,9 @@
-# Data science :Capstone Activities:
+# Data Science :Capstone Activities:
 
-Main Tasks is creating next word predicator using a natural language processing model based on the SwiftKey dataset that can be found in this link[https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip]
+Main task is creating next word predicator using a natural language processing model based on the SwiftKey datasets.
+ Dataset link :[https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip]
 
-Tasks accomplished
+Tasks accomplished:
 
  - Data acquisition and cleaning including removing dirty words is conducted.
  - Related to Sampling, 5,000 lines from each datasets (blogs, news and twitter) are sampled for exploring and the left data will be        sampled as test data sets.
@@ -20,9 +21,9 @@ Backoff implmenation
 
 Backoff model is used for the creation this app using the ANLP package which the package in-turn depends on the Katz's back-ff model. Basically,the model get the probability of every (n-1) terms, order them and show the first few words as prediction. If no words were shown, a (n-1)-gram model will be used until uni-gram model, which will show the most common words in the corpus.
 
-Products completed as part of capstone
+Products completed as part of capstone:
  - Milestone reports  with stop words and stemming :http://www.rpubs.com/Yadem/323632
- - With stepwords and skiping stemming the sample dataset: http://www.rpubs.com/Yadem/336089
+ - With stop words and without stemming the sample dataset: http://www.rpubs.com/Yadem/336089
  - Shiny app for next work predictor: https://yilmaadem.shinyapps.io/nextwordpredictor/
 
 
