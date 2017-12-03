@@ -1,0 +1,243 @@
+-------
+
+### Word Prediction with R  using SwiftKey dataset
+
+###Authore : Yilma Adem
+
+### date: "November 25, 2017"
+
+---------
+
+**Sample Data for Word Prediction **
+   
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+library(dplyr)
+library(tm)
+library(ANLP)
+library(tidyr)
+library(RWeka)
+library(rJava)
+library(stringi)
+library(SnowballC)
+library(qdap)
+library(ggplot2)
+```
+
+## Load swiftkey datasets files
+
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+# inspect the data
+list.files("SwiftKeyFinal/en_US")
+```
+
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+#importing Data in text format and converting the binary data
+blogs <- readLines("SwiftKeyFinal/en_US/en_US.blogs.txt",encoding="UTF-8")
+
+# import the binary mode news dataset and converting to text format
+con <- file("SwiftKeyFinal/en_US/en_US.news.txt", open="rb")
+newsdt <- readLines(con, encoding="UTF-8")
+close(con)
+rm(con)
+
+#importing the twitter text datasets
+twitterdt <- readLines("SwiftKeyFinal/en_US/en_US.twitter.txt",encoding="UTF-8")
+```
+
+#### Sampling and excluding non-ASCII characters, 
+
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+#take sample data from each datasets
+sampleblogs<-sample(blogs, 5000)
+samplenews <- sample(newsdt, 5000)
+sampletwitter <- sample(twitterdt, 5000)
+
+# convert string to vector of words for sample
+sampleblogs<- unlist(strsplit(sampleblogs, split=", "))
+samplenews<- unlist(strsplit(samplenews, split=", "))
+sampletwitter<- unlist(strsplit(sampletwitter, split=", "))
+
+# find indices of words with non-ASCII characters
+nonAscIDX<- grep("sampleblogs", iconv(sampleblogs, "latin1", "ASCII", sub="sampleblogs"))
+nonAscIDX<- grep("samplenews", iconv(samplenews, "latin1", "ASCII", sub="samplenews"))
+nonAscIDX<- grep("sampletwitter", iconv(sampletwitter, "latin1", "ASCII", sub="sampletwitter"))
+
+# subset original vector of words to exclude words with non-ACCII characters
+ascVec1<- sampleblogs[ - nonAscIDX]
+ascVec2<- samplenews[ - nonAscIDX]
+ascVec3<- sampletwitter[ - nonAscIDX]
+
+# convert vector back to string
+sampleblogs<- paste(ascVec1, collapse = ", ")
+samplenews<- paste(ascVec2, collapse = ", ")
+sampletwitter<- paste(ascVec3, collapse = ", ")
+```
+
+#### Combine sample text data for further clean up 
+
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+# Combine the sample and  
+sampledata <- c(sampleblogs, samplenews, sampletwitter)
+
+```
+#### Cleaning up the data
+ Removing white space , stopwords and execluding profane words activities are done here.
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+library(tm)
+#create corpus
+sampledata <- Corpus(VectorSource(sampledata))
+
+#Profane words
+badwords <- read.csv("SwiftKeyFinal/en_profane.txt", header=FALSE, stringsAsFactors=FALSE)
+badwords <- badwords$V1
+
+# Remove profane words
+sampledata <- tm_map(sampledata, removeWords, badwords) 
+
+#White Space
+sampledata <- tm_map(sampledata, stripWhitespace)
+##Convert characters to lower case
+VcomDataSample <- tm_map(sampledata, tolower)
+#removing stopwords
+##Remove punctuation
+sampledata <- tm_map(VcomDataSample, removePunctuation)
+
+##Remove numbers
+sampledata<- tm_map(sampledata, removeNumbers)
+
+FNLdocs <- tm_map(sampledata, PlainTextDocument)
+save(FNLdocs, file = "FNLdocs.txt")
+corpusdtm <- VCorpus(VectorSource(FNLdocs))
+
+# Unigram model
+
+unigram <- generateTDM(corpusdtm,1,T)
+names(unigram) <- c("word", "freq")
+row.names(unigram) <- NULL
+head(unigram, 10)
+
+plot
+ggplot(head(unigram,10), aes(x=reorder(word,freq), y=freq)) +
+  
+  geom_bar(stat="Identity", fill="cadetblue") +
+  
+  coord_flip() +
+  
+  geom_text(aes(label=freq),nudge_y=0.5) +
+  
+  ggtitle("Top 10 words of unigram") +
+  
+  ylab("Frequency") +
+  
+  xlab("Word")
+
+# Bigram model
+bigram <- generateTDM(corpusdtm,2,T)
+names(bigram) <- c("word", "freq")
+row.names(bigram) <- NULL
+head(bigram, 10)
+
+#plot
+ggplot(head(bigram,10), aes(x=reorder(word,freq), y=freq)) +
+  
+  geom_bar(stat="Identity", fill="firebrick") +
+  
+  coord_flip() +
+  
+  geom_text(aes(label=freq),nudge_y=0.5) +
+  
+  ggtitle("Top 10 words of bigram") +
+  
+  ylab("Frequency") +
+  
+  xlab("Word")
+
+# Trigram model
+trigram <- generateTDM(corpusdtm,3,T)
+names(trigram) <- c("word", "freq")
+row.names(trigram) <- NULL
+head(trigram, 10)
+
+#plot
+ggplot(head(trigram,10), aes(x=reorder(word,freq), y=freq)) +
+  
+  geom_bar(stat="Identity", fill="chocolate") +
+  
+  coord_flip() +
+  
+  geom_text(aes(label=freq),nudge_y=0.5) +
+  
+  ggtitle("Top 10 words of trigram") +
+  
+  ylab("Frequency") +
+  
+  xlab("Word")
+
+# Quadrigram model
+quadragram <- generateTDM(corpusdtm,4,T)
+#names(quadragram) <- c("word", "freq")
+row.names(quadragram) <- NULL
+head(quadragram, 10)
+
+#plot
+ggplot(head(quadragram,10), aes(x=reorder(word,freq), y=freq)) +
+  
+  geom_bar(stat="Identity", fill="chocolate") +
+  
+  coord_flip() +
+  
+  geom_text(aes(label=freq),nudge_y=0.5) +
+  
+  ggtitle("Top 10 words of quadragram") +
+  
+  ylab("Frequency") +
+  
+  xlab("Word")
+
+# Fivegram model
+fivegram <- generateTDM(corpusdtm,5,T)
+#names(fivegram) <- c("word", "freq")
+row.names(fivegram) <- NULL
+head(fivegram, 10)
+
+#plot
+ggplot(head(fivegram,10), aes(x=reorder(word,freq), y=freq)) +
+  
+  geom_bar(stat="Identity", fill="lightblue") +
+  
+  coord_flip() +
+  
+  geom_text(aes(label=freq),nudge_y=0.5) +
+  
+  ggtitle("Top 10 words of fivegram") +
+  
+  ylab("Frequency") +
+  
+  xlab("Word")
+
+# comparing if identicial 
+identical(bigram, unigram)
+identical(trigram, bigram)
+```
+
+```{r echo=TRUE, warning = FALSE, message = FALSE, comment=""}
+# ngrams lists
+ngramsList <- list(fivegram, quadragram, trigram, bigram, unigram)
+#save(fivegram,quadragram,trigram,bigram,unigram, file = "ngramsList2.RData")
+#saveRDS(ngramsList, file = "ngramsList4.rds")
+
+#predict Next words using backoff 
+
+prediction <- predict_Backoff("Hall of", ngramsList)
+prediction
+
+
+# clear the workspace
+isDebugMode <- F
+
+if(!isDebugMode)
+  rm(list = ls())
+
+```
+
+
