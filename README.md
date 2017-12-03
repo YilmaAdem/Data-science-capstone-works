@@ -1,4 +1,4 @@
-# Data science :capstone Activities:
+# Data science :Capstone Activities:
 
 Main Tasks is creating next word predicator using a natural language processing model based on the SwiftKey dataset that can be found in this link[https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip]
 
