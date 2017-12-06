@@ -25,6 +25,7 @@ Products completed as part of capstone:
  - Milestone reports  with stop words and stemming :http://www.rpubs.com/Yadem/323632
  - With stop words and without stemming the sample dataset: http://www.rpubs.com/Yadem/336089
  - Shiny app for next work predictor: https://yilmaadem.shinyapps.io/nextwordpredictor/
+ - Slide Deck:https://rpubs.com/Yadem/337247
 
 
 References:
