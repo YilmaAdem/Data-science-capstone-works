@@ -15,7 +15,7 @@ Modeling
 N-grams model
 
 Ngrams model uses a high probability of the last words and will predict next words of phrases. However , it cost a lot time to process and train the data.
-Fivegram model
+
 
 Backoff implmenation 
 
